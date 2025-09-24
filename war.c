@@ -1,4 +1,92 @@
-// ============================================================================
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <locale.h>
+
+
+// --- Constantes Globais ---
+#define NUM_TERRITORIOS 12
+#define TAM_NOME 40
+#define MISSÕES 2
+
+
+// Cores / donos (apenas inteiros para simplicidade)
+#define DONO_VAZIO 0
+#define DONO_JOGADOR 1
+#define DONO_INIMIGO_1 2
+#define DONO_INIMIGO_2 3
+
+
+// Estrutura de um território
+typedef struct {
+char nome[TAM_NOME];
+int dono; // cor/exército que domina
+int tropas; // número de tropas
+} Territorio;
+
+
+// --- Protótipos das funções ---
+Territorio* alocarMapa(int n);
+void inicializarTerritorios(Territorio* mapa, int n);
+void liberarMemoria(Territorio** mapa);
+
+
+void exibirMenuPrincipal(void);
+void exibirMapa(const Territorio* mapa, int n);
+void exibirMissao(int missaoId, int parametro);
+
+
+void faseDeAtaque(Territorio* mapa, int n);
+void simularAtaque(Territorio* mapa, int idxOrigem, int idxDestino);
+
+
+int sortearMissao(int* parametro);
+int verificarVitoria(const Territorio* mapa, int n, int missaoId, int parametro);
+
+
+void limparBufferEntrada(void);
+int lerInteiroSeguro(int minimo, int maximo);
+
+
+// --- Implementação ---
+
+
+Territorio* alocarMapa(int n) {
+Territorio* m = (Territorio*) calloc(n, sizeof(Territorio));
+return m; // NULL será checado pelo chamador
+}
+
+
+void inicializarTerritorios(Territorio* mapa, int n) {
+// Exemplo de nomes e distribuição inicial simples
+const char* nomes[NUM_TERRITORIOS] = {
+"Amazônia", "Pará", "Marajó", "Belém",
+"Vigia", "Santarém", "Castanhal", "Cametá",
+"Bragança", "Altamira", "Capanema", "Breves"
+};
+
+
+// Distribuição de donos e tropas para iniciar
+for (int i = 0; i < n; ++i) {
+strncpy(mapa[i].nome, nomes[i % NUM_TERRITORIOS], TAM_NOME-1);
+mapa[i].nome[TAM_NOME-1] = '\0';
+// Alterna donos para criar disputa
+if (i % 3 == 0) mapa[i].dono = DONO_JOGADOR;
+else if (i % 3 == 1) mapa[i].dono = DONO_INIMIGO_1;
+else mapa[i].dono = DONO_INIMIGO_2;
+
+
+// Número inicial de tropas
+mapa[i].tropas = 1 + rand() % 6; // 1 a 6 tropas
+}
+}
+
+
+void liberarMemoria(Territorio** mapa) {
+if (mapa && *mapa) {
+free(*mapa);
+*mapa = NULL;// ============================================================================
 //         PROJETO WAR ESTRUTURADO - DESAFIO DE CÓDIGO
 // ============================================================================
 //        
